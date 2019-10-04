@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+const Question = require('../app/models/Question');
+const Model = require('../lib/Model');
+const IceBreaker = require('../app/models/IceBreaker');
+const IceBreakerResponse = require('../app/models/IceBreakerResponse');
+
+var debug = require('debug')('icebreaker-simple:server');
+
+pry = require('pryjs')
+eval(pry.it)
