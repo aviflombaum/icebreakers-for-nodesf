@@ -1,11 +1,20 @@
 #!/usr/bin/env node
 
-const Question = require('../app/models/Question');
 const Model = require('../lib/Model');
+
+const Question = require('../app/models/Question');
 const IceBreaker = require('../app/models/IceBreaker');
 const IceBreakerResponse = require('../app/models/IceBreakerResponse');
 
+Model.create(Question)
+Model.create(IceBreaker)
+Model.create(IceBreakerResponse)
+
 var debug = require('debug')('icebreaker-simple:server');
+
+const logObject = function(obj){
+  console.log(obj)
+}
 
 pry = require('pryjs')
 eval(pry.it)

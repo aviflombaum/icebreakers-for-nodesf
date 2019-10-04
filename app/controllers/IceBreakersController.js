@@ -16,7 +16,7 @@ IceBreakersController.New = async function (req, res, next) {
 IceBreakersController.Create = async function (req, res, next) {
   const question = await Question.Find(req.query.questionID);
   const iceBreaker = new IceBreaker(question.id);
-  const savedIceBreaker = await iceBreaker.save();
+  const savedIceBreaker = await iceBreaker.insert();
 
   await IceBreakerResponse.BatchCreate(savedIceBreaker.id, req.body.iceBreakerEmails);
 
@@ -25,7 +25,7 @@ IceBreakersController.Create = async function (req, res, next) {
 
 IceBreakersController.Show = async function (req, res, next) {
   const iceBreaker = await IceBreaker.FindBy("secret", req.query.secret);
-  const iceBreakerResponses = await IceBreakerResponse.FindAllByIceBreakerID(iceBreaker.id);
+  const iceBreakerResponses = await IceBreakerResponse.FindAllBy("iceBreakerId", iceBreaker.id);
   const question = await Question.Find(iceBreaker.questionID);
   const icebreakerURL = req.protocol + '://' + req.get('host') + req.originalUrl;
   const siteURL = req.protocol + '://' + req.get('host');

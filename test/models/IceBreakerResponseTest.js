@@ -5,17 +5,20 @@ process.env.NODE_ENV = 'test';
 const { expect } = require('chai');
 
 const db = require('../../config/db');
+const Model = require('../../lib/Model');
 
 const IceBreakerResponse = require('../../app/models/IceBreakerResponse');
+Model.create(IceBreakerResponse)
+
 
 const createTable = () => new Promise((resolve, reject) => db.get(`
-  CREATE TABLE IF NOT EXISTS icebreaker_responses (
+  CREATE TABLE IF NOT EXISTS icebreakerresponses (
     id INTEGER PRIMARY KEY,
-    icebreaker_id INTEGER,
+    iceBreakerID INTEGER,
     email TEXT,
     secret TEXT,
-    response_text TEXT,
-    response_url TEXT
+    responseText TEXT,
+    responseUrl TEXT
   )
 `, (err, row) => err ? reject(err) : resolve(row)));
 
@@ -34,21 +37,21 @@ const getTableInfo = tableName => new Promise((resolve, reject) => db.get(`
 
 const findResponseByID = id => new Promise((resolve, reject) => db.get(`
   SELECT *
-  FROM icebreaker_responses
+  FROM icebreakerresponses
   WHERE id = ?
 `, [ id ], (err, row) => {
   if (err) reject(err);
 
-  const response = new IceBreakerResponse(row.icebreaker_id, row.email, row.secret);
+  const response = new IceBreakerResponse(row.iceBreakerID, row.email, row.secret);
   response.id = row.id;
-  response.responseText = row.response_text;
+  response.responseText = row.responseText;
 
   resolve(response);
 }));
 
 const createDummyResponses = (iceBreakerID, email, secret) => new Promise((resolve, reject) => db.get(`
-  INSERT INTO icebreaker_responses (
-    icebreaker_id,
+  INSERT INTO icebreakerresponses (
+    iceBreakerID,
     email,
     secret
   ) VALUES (?, ?, ?)
@@ -77,71 +80,71 @@ describe('IceBreakerResponse', () => {
         expect(IceBreakerResponse.CreateTable).to.be.a('function');
       });
 
-      it("creates a new table in the database named 'icebreaker_responses'", async () => {
+      it("creates a new table in the database named 'icebreakerresponses'", async () => {
         await IceBreakerResponse.CreateTable();
 
         const tables = await getTables();
 
-        expect(tables[0].name).to.eq('icebreaker_responses');
+        expect(tables[0].name).to.eq('icebreakerresponses');
       });
 
-      it("adds 'id', 'icebreaker_id', 'email', 'secret', 'response_text', and 'response_url' columns to the 'icebreaker_responses' table", async () => {
+      it("adds 'id', 'iceBreakerID', 'email', 'secret', 'responseText', and 'responseUrl' columns to the 'icebreaker_responses' table", async () => {
         await IceBreakerResponse.CreateTable();
 
-        const { sql } = await getTableInfo('icebreaker_responses');
+        const { sql } = await getTableInfo('icebreakerresponses');
 
         const idFieldExists = sql.indexOf('id INTEGER PRIMARY KEY') > -1;
-        const icebreaker_idFieldExists = sql.indexOf('icebreaker_id INTEGER') > -1;
+        const icebreaker_idFieldExists = sql.indexOf('iceBreakerID INTEGER') > -1;
         const emailFieldExists = sql.indexOf('email TEXT') > -1;
         const secretFieldExists = sql.indexOf('secret TEXT') > -1;
-        const response_textFieldExists = sql.indexOf('response_text TEXT') > -1;
-        const response_urlFieldExists = sql.indexOf('response_url TEXT') > -1;
+        const response_textFieldExists = sql.indexOf('responseText TEXT') > -1;
+        const response_urlFieldExists = sql.indexOf('responseUrl TEXT') > -1;
 
-        expect(idFieldExists, "'icebreaker_responses' table is missing an 'id' field with type 'INTEGER' and modifier 'PRIMARY KEY'").to.eq(true);
-        expect(icebreaker_idFieldExists, "'icebreaker_responses' table is missing a 'icebreaker_id' field with type 'INTEGER'").to.eq(true);
-        expect(emailFieldExists, "'icebreaker_responses' table is missing a 'email' field with type 'TEXT'").to.eq(true);
-        expect(secretFieldExists, "'icebreaker_responses' table is missing a 'secret' field with type 'TEXT'").to.eq(true);
-        expect(response_textFieldExists, "'icebreaker_responses' table is missing a 'response_text' field with type 'TEXT'").to.eq(true);
-        expect(response_urlFieldExists, "'icebreaker_responses' table is missing a 'response_url' field with type 'TEXT'").to.eq(true);
+        expect(idFieldExists, "'icebreakerresponses' table is missing an 'id' field with type 'INTEGER' and modifier 'PRIMARY KEY'").to.eq(true);
+        expect(icebreaker_idFieldExists, "'icebreakerresponses' table is missing a 'iceBreakerID' field with type 'INTEGER'").to.eq(true);
+        expect(emailFieldExists, "'icebreakerresponses' table is missing a 'email' field with type 'TEXT'").to.eq(true);
+        expect(secretFieldExists, "'icebreakerresponses' table is missing a 'secret' field with type 'TEXT'").to.eq(true);
+        expect(response_textFieldExists, "'icebreakerresponses' table is missing a 'responseText' field with type 'TEXT'").to.eq(true);
+        expect(response_urlFieldExists, "'icebreakerresponses' table is missing a 'responseUrl' field with type 'TEXT'").to.eq(true);
       });
     });
 
-    describe('.BatchCreate()', () => {
-      beforeEach(async () => {
-        await createTable();
-      });
+    // describe('.BatchCreate()', () => {
+    //   beforeEach(async () => {
+    //     await createTable();
+    //   });
 
-      afterEach(async () => {
-        await resetDB();
-      });
+    //   afterEach(async () => {
+    //     await resetDB();
+    //   });
 
-      it('exists', () => {
-        expect(IceBreakerResponse.BatchCreate).to.be.a('function');
-      });
+    //   it('exists', () => {
+    //     expect(IceBreakerResponse.BatchCreate).to.be.a('function');
+    //   });
 
-      it('returns an array of IceBreakerResponse objects', async () => {
-        const responses = await IceBreakerResponse.BatchCreate(4, [
-          'avi@flatironschool.com',
-          'joe@flatironschool.com',
-          'gabe@flatironschool.com'
-        ]);
+    //   it('returns an array of IceBreakerResponse objects', async () => {
+    //     const responses = await IceBreakerResponse.BatchCreate(4, [
+    //       'avi@flatironschool.com',
+    //       'joe@flatironschool.com',
+    //       'gabe@flatironschool.com'
+    //     ]);
 
-        expect(responses[2].email).to.eq('gabe@flatironschool.com');
-      });
+    //     expect(responses[2].email).to.eq('gabe@flatironschool.com');
+    //   });
 
-      it('persists created IceBreakerResponse objects to the database', async () => {
-        await IceBreakerResponse.BatchCreate(2, [
-          'joe@flatironschool.com',
-          'avi@flatironschool.com'
-        ]);
+    //   it('persists created IceBreakerResponse objects to the database', async () => {
+    //     await IceBreakerResponse.BatchCreate(2, [
+    //       'joe@flatironschool.com',
+    //       'avi@flatironschool.com'
+    //     ]);
 
-        const response = await findResponseByID(2);
+    //     const response = await findResponseByID(2);
 
-        expect(response.iceBreakerID).to.eq(2);
-      });
-    });
+    //     expect(response.iceBreakerID).to.eq(2);
+    //   });
+    // });
 
-    describe('.FindAllByIceBreakerID()', () => {
+    describe('.FindAllBy()', () => {
       before(async () => {
         await createTable();
         await seedDB();
@@ -152,11 +155,11 @@ describe('IceBreakerResponse', () => {
       });
 
       it('exists', () => {
-        expect(IceBreakerResponse.FindAllByIceBreakerID).to.be.a('function');
+        expect(IceBreakerResponse.FindAllBy).to.be.a('function');
       });
 
       it('finds an IceBreakerResponse in the database by its secret and returns a new IceBreakerResponse object', async () => {
-        const responses = await IceBreakerResponse.FindAllByIceBreakerID(2);
+        const responses = await IceBreakerResponse.FindAllBy('iceBreakerID', 2);
 
         expect(responses[1].secret).to.eq('zyxw');
       });
@@ -173,11 +176,11 @@ describe('IceBreakerResponse', () => {
       });
 
       it('exists', () => {
-        expect(IceBreakerResponse.FindBySecret).to.be.a('function');
+        expect(IceBreakerResponse.FindBy).to.be.a('function');
       });
 
       it('finds an IceBreakerResponse in the database by its secret and returns a new IceBreakerResponse object', async () => {
-        const response = await IceBreakerResponse.FindBySecret('zyxw');
+        const response = await IceBreakerResponse.FindBy('secret', 'zyxw');
 
         expect(response.iceBreakerID).to.eq(2);
       });
@@ -208,7 +211,7 @@ describe('IceBreakerResponse', () => {
         expect(response.insert).to.be.a('function');
       });
 
-      it("persists itself to the 'icebreaker_responses' database", async () => {
+      it("persists itself to the 'icebreakerresponses' database", async () => {
         const response = new IceBreakerResponse(9, 'avi@flatironschool.com', 'zyxwv');
 
         await response.insert();
@@ -232,21 +235,21 @@ describe('IceBreakerResponse', () => {
       it('exists', () => {
         const response = new IceBreakerResponse(9, 'avi@flatironschool.com', 'zyxwv');
 
-        expect(response.updateResponseText).to.be.a('function');
+        expect(response.update).to.be.a('function');
       });
 
       it("updates the 'responseText' property of the object upon which it is invoked", async () => {
         const response = new IceBreakerResponse(9, 'avi@flatironschool.com', 'zyxwv');
-
-        await response.updateResponseText('blah blah blah');
+        response.responseText = 'blah blah blah'
+        await response.update();
 
         expect(response.responseText).to.eq('blah blah blah');
       });
 
       it("persists the updated 'responseText' property to the object's database record", async () => {
         const response = await findResponseByID(1);
-
-        await response.updateResponseText('bleep bloop');
+        response.responseText = 'bleep bloop'
+        await response.update();
 
         const updatedResponse = await findResponseByID(1);
 

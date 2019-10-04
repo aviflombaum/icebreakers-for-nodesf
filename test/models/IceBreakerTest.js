@@ -122,7 +122,7 @@ describe('IceBreaker', () => {
       expect(iceBreaker.questionID).to.eq(1234);
     });
 
-    describe('#save()', () => {
+    describe('#insert()', () => {
       before(async () => {
         await createTable();
       });
@@ -134,13 +134,13 @@ describe('IceBreaker', () => {
       it('exists', () => {
         const iceBreaker = new IceBreaker(6789);
 
-        expect(iceBreaker.save).to.be.a('function');
+        expect(iceBreaker.insert).to.be.a('function');
       });
 
       it("persists itself to the 'icebreakers' database", async () => {
         const iceBreaker = new IceBreaker(6789);
 
-        const savedIceBreaker = await iceBreaker.save();
+        const savedIceBreaker = await iceBreaker.insert();
 
         expect(savedIceBreaker.questionID).to.eq(6789);
       });

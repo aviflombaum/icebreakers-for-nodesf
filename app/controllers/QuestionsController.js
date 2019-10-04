@@ -15,7 +15,7 @@ QuestionsController.New = function(req, res, next) {
 
 QuestionsController.Create = async function(req, res, next) {
   question = new Question(req.body.questionContent);
-  await question.save()  
+  await question.insert()  
   
   res.redirect('/');
 }
